@@ -63,29 +63,29 @@ export default function ComparePage() {
       <h1 className="text-3xl font-bold text-center">Resume vs Job Description Comparison</h1>
 
       <div className="bg-blue-50 p-4 rounded-xl shadow">
-        <h2 className="text-xl font-semibold">Match Percentage:</h2>
+        <h2 className="text-xl font-bold text-gray-700">Match Percentage:</h2>
         <p className="text-4xl font-bold text-green-600">{matchPercentage ?? "N/A"}%</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-4 border rounded-xl shadow">
-          <h3 className="text-xl font-semibold mb-2">Resume Summary</h3>
-          <p><strong>Name:</strong> {resumeData.name}</p>
-          <p><strong>Email:</strong> {resumeData.email}</p>
-          <p><strong>Phone:</strong> {resumeData.phone}</p>
-          <p><strong>Skills:</strong> {resumeData.skills?.flatMap((cat: SkillCategory) => cat.items).join(", ")}</p>
+          <h3 className="text-xl font-bold mb-2 text-gray-700">Resume Summary</h3>
+          <p className="font-bold text-gray-600"><strong>Name:</strong> {resumeData.name}</p>
+          <p className="font-bold text-gray-600"><strong>Email:</strong> {resumeData.email}</p>
+          <p className="font-bold text-gray-600"><strong>Phone:</strong> {resumeData.phone}</p>
+          <p className="font-bold text-gray-600"><strong>Skills:</strong> {resumeData.skills?.flatMap((cat: SkillCategory) => cat.items).join(", ")}</p>
         </div>
 
         <div className="bg-white p-4 border rounded-xl shadow">
-          <h3 className="text-xl font-semibold mb-2">Job Description Summary</h3>
-          <p><strong>Skills Required:</strong> {jobDetails.skills?.join(", ")}</p>
-          <p><strong>Experience:</strong> {jobDetails.experience}</p>
-          <p><strong>Education:</strong> {jobDetails.education?.join(", ")}</p>
+          <h3 className="text-xl font-bold mb-2 text-gray-700">Job Description Summary</h3>
+          <p className="font-bold text-gray-600"><strong>Skills Required:</strong> {jobDetails.skills?.join(", ")}</p>
+          <p className="font-bold text-gray-600"><strong>Experience:</strong> {jobDetails.experience}</p>
+          <p className="font-bold text-gray-600"><strong>Education:</strong> {jobDetails.education?.join(", ")}</p>
         </div>
       </div>
 
       <div className="bg-white p-4 border rounded-xl shadow">
-        <h3 className="text-xl font-semibold mb-2">Comparison</h3>
+        <h3 className="text-xl font-bold mb-2 text-gray-700">Comparison</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <h4 className="font-bold text-green-700">Matched Skills</h4>
