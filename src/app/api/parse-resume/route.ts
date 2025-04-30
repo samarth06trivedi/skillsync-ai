@@ -1,3 +1,4 @@
+//api/parse-resume/route.ts
 import { type NextRequest, NextResponse } from "next/server"
 import { TextractClient, DetectDocumentTextCommand } from "@aws-sdk/client-textract"
 import * as mammoth from "mammoth"

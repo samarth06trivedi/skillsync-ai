@@ -2,18 +2,18 @@
 
 import type React from "react"
 import { useState } from "react"
-import { extractResumeData } from "@/lib/extractResumeData"
-import { ResumeData } from '@/lib/types';
+import { ResumeData , JobDetails } from '@/lib/types';
 
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null)
-  const [jobDescription, setJobDescription] = useState("");
+  const [jobDescription, setJobDescription] = useState("")
   const [dragActive, setDragActive] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isParsingJD, setIsParsingJD] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [parsedData, setParsedData] = useState<ResumeData | null>(null);
-  
+  const [parsedData, setParsedData] = useState<ResumeData | null>(null)
+  const [parsedJobDetails, setParsedJobDetails] = useState<JobDetails | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -45,35 +45,84 @@ export default function UploadPage() {
   }
 
   const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!file) return
+    e.preventDefault();
+    if (!file) return;
+  
+    const formData = new FormData();
+    formData.append("resume", file);
+    formData.append("jobDescription", jobDescription);
+  
+    setIsLoading(true);
+    setError(null);
+  
+    try {
+      // Step 1: First parse the file to get raw text
+      const parseResponse = await fetch("/api/parse-resume", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!parseResponse.ok) {
+        throw new Error(await parseResponse.text() || "Failed to parse resume");
+      }
+  
+      const { text } = await parseResponse.json();
+  
+      // Step 2: Send the extracted text to your API route for processing
+      const processResponse = await fetch("/api/process-resume", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      });
+  
+      if (!processResponse.ok) {
+        throw new Error(await processResponse.text() || "Failed to analyze resume");
+      }
+  
+      const structuredData = await processResponse.json();
+      setParsedData(structuredData);
+      
+    } catch (error) {
+      console.error("Upload error:", error);
+      setError((error as Error).message || "Failed to process resume");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const formData = new FormData()
-    formData.append("resume", file)
-    formData.append("jobDescription", jobDescription) // Append JD too
+  const parseJobDescription = async () => {
+    if (!jobDescription.trim()) {
+      setError("Please enter a job description")
+      return
+    }
 
-    setIsLoading(true)
+    setIsParsingJD(true)
     setError(null)
 
     try {
-      const response = await fetch("/api/parse-resume", {
+      const response = await fetch("/api/parse-job-description", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: jobDescription }),
       })
 
       const result = await response.json()
-
+      
       if (!response.ok) {
-        throw new Error(result.error || "Failed to parse resume")
+        throw new Error(result.error || "Failed to parse job description")
       }
 
-      setParsedData(result.text)
-      setParsedData(extractResumeData(result.text))
+      setParsedJobDetails(result)
+      console.log("Parsed Job Details:", result)
     } catch (error) {
-      console.error("Upload error:", error)
-      setError((error as Error).message || "Failed to parse resume")
+      console.error("Job description parsing error:", error)
+      setError((error as Error).message || "Failed to parse job description")
     } finally {
-      setIsLoading(false)
+      setIsParsingJD(false)
     }
   }
 
@@ -135,16 +184,29 @@ export default function UploadPage() {
             </label>
           </div>
 
-          {/* Job Description Box */}
-          <div className="flex-1 h-[300px] p-8 border-2 border-gray-300 rounded-xl shadow-md hover:shadow-lg">
-            <textarea
-              className="w-full h-full resize-none rounded-md p-4 text-white border focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Paste or type the Job Description here..."
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-            />
+          {/* Job Description Box with Parse Button */}
+          <div className="flex-1 flex flex-col">
+            <div className="h-[250px] p-6 border-2 border-gray-300 rounded-xl shadow-md hover:shadow-lg">
+              <textarea
+                className="w-full h-full resize-none rounded-md p-4 border focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="Paste or type the Job Description here..."
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={parseJobDescription}
+              disabled={!jobDescription || isParsingJD}
+              className={`mt-4 px-4 py-2 self-end rounded-lg transition ${
+                !jobDescription || isParsingJD
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-green-600 text-white hover:bg-green-700"
+              }`}
+            >
+              {isParsingJD ? "Parsing..." : "Parse Job Description"}
+            </button>
           </div>
-
         </div>
 
         {/* Upload Button */}
@@ -157,7 +219,7 @@ export default function UploadPage() {
               : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
         >
-          {isLoading ? "Processing..." : "Upload"}
+          {isLoading ? "Processing..." : "Upload Resume"}
         </button>
       </form>
 
@@ -182,38 +244,53 @@ export default function UploadPage() {
           
           <div>
             <h3 className="font-bold text-gray-700 mb-2">Education:</h3>
-            {parsedData.education.map((edu, index) => (
-              <div key={index} className="mb-4 ml-4 text-gray-600">
-                <p className="font-bold">{edu.degree}</p>
-                {edu.university && <p className="text-sm ">{edu.university}</p>}
-                {edu.duration && <p className="text-sm text-gray-600">{edu.duration}</p>}
-                <ul className="list-disc list-inside ml-4 text-sm">
-                  {edu.details.map((detail, i) => (
-                    <li key={i}>{detail}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {parsedData.education && parsedData.education.length > 0 ? (
+              parsedData.education.map((edu, index) => (
+                <div key={index} className="mb-4 ml-4 text-gray-600">
+                  <p className="font-bold">{edu.degree}</p>
+                  {edu.university && <p className="text-sm ">{edu.university}</p>}
+                  {edu.duration && <p className="text-sm text-gray-600">{edu.duration}</p>}
+                  <ul className="list-disc list-inside ml-4 text-sm">
+                    {edu.details?.map((detail, i) => (
+                      <li key={i}>{detail}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 ml-4">No education information found</p>
+            )}  
           </div>
           
           <div>
             <h3 className="font-bold text-gray-700 mb-2">Skills:</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-4">
-              {parsedData.skills.map((skillCategory, index) => (
-                <div key={index} className="mb-2 text-gray-600">
-                  <p className="font-bold">{skillCategory.category}</p>
-                  <ul className="list-disc list-inside ml-4 text-gray-500">
-                    {skillCategory.items.map((skill, i) => (
-                      <li key={i} className="text-sm text-gray-600">{skill}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
+            {parsedData.skills && parsedData.skills.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-4">
+                {parsedData.skills.map((skillCategory, index) => (
+                  <div key={index} className="mb-2 text-gray-600">
+                    <p className="font-bold">{skillCategory.category || 'Uncategorized'}</p>
+                    <ul className="list-disc list-inside ml-4 text-gray-500">
+                      {skillCategory.items?.map((skill, i) => (
+                        <li key={i} className="text-sm text-gray-600">{skill}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 ml-4">No skills information found</p>
+            )}
           </div>
         </div>
       )}
 
+      {/* Hidden debug output for job description parsing */}
+      {parsedJobDetails && (
+        <div className="hidden">
+          {JSON.stringify(parsedJobDetails, null, 2)}
+        </div>
+      )}
     </div>
   )
 }
+
