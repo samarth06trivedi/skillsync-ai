@@ -2,14 +2,33 @@
 
 import type React from "react"
 import { useState } from "react"
+import { useSession } from "next-auth/react"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import ProfileMenu from '@/components/profile-menu'
+
+
+
 
 export default function UploadPage() {
+  const { status } = useSession()
+  const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [jobDescription, setJobDescription] = useState("")
   const [dragActive, setDragActive] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [uploadSuccess, setUploadSuccess] = useState(false)
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth")
+    }
+  }, [status, router])
+
+  if (status === "loading") {
+    return <p>Loading...</p>
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -108,6 +127,10 @@ export default function UploadPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="w-full flex justify-end">
+        <ProfileMenu />
+      </div>
+
       <h1 className="text-3xl font-bold mb-6">Upload Your Resume & Job Description</h1>
 
       <form onSubmit={handleUpload} className="flex flex-col items-center w-full max-w-7xl">
@@ -164,7 +187,7 @@ export default function UploadPage() {
 
           {/* Job Description Box */}
           <div className="flex-1 flex flex-col">
-            <div className="h-[250px] p-6 border-2 border-gray-300 rounded-xl shadow-md hover:shadow-lg">
+            <div className="h-[300px] p-6 border-2 border-gray-300 rounded-xl shadow-md hover:shadow-lg">
               <textarea
                 className="w-full h-full resize-none rounded-md p-4 border focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Paste or type the Job Description here..."

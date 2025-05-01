@@ -1,8 +1,7 @@
-"use client"
-
+"use client";
 import React, { useEffect, useState } from "react"
 import { ResumeData, JobDetails , MatchResult , MissingResult, SkillCategory } from "@/lib/types";
-
+import ProfileMenu from '@/components/profile-menu'
 
 export default function ComparePage() {
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
@@ -60,6 +59,9 @@ export default function ComparePage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-8">
+      <div className="w-full flex justify-end">
+        <ProfileMenu />
+      </div>
       <h1 className="text-3xl font-bold text-center">Resume vs Job Description Comparison</h1>
 
       <div className="bg-blue-50 p-4 rounded-xl shadow">
