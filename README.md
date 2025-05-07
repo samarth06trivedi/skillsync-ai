@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# visit the live website at: https://skillsync-ai-nu.vercel.app/
+# SkillSync AI
 
-## Getting Started
+SkillSync AI is a smart resume-job matcher web app that compares your resume against job descriptions, highlighting matched and missing skills with a match percentage. Built with Next.js, TailwindCSS, and OpenRouter AI APIs, it helps job seekers optimize their resumes for specific roles.
 
-First, run the development server:
+![Screenshot](public/screenshot.png)
+
+---
+
+## 🚀 Features
+
+- 🔐 **Authentication** with NextAuth
+- 📄 **Resume Upload** with AWS Textract for text extraction (PDF parsing)
+- ✍️ **Job Description Parsing** via AI (OpenRouter/DeepSeek)
+- 🤖 **Smart Matching** of skills between resume and job description
+- 📊 **Match Percentage** breakdown with matched/missing skill lists
+- 📁 **Dashboard View**: Track job applications (In Progress / Offers / Rejections)
+- 💾 **LocalStorage** support for fast comparison persistence
+
+---
+
+## 🧠 How It Works
+
+1. **Upload Resume** (PDF) → parsed with AWS Textract
+2. **Paste Job Description** → parsed via LLM into structured data
+3. **Compare Page** → SkillSync AI shows a match percentage and details
+4. **Save Jobs** to track status (Offer / Rejected / In Progress)
+
+---
+
+## 📸 UI Preview
+
+| Upload Page                         | Compare Page                         | Dashboard                          |
+|-------------------------------------|--------------------------------------|-------------------------------------|
+| ![](public/screens/upload.png)      | ![](public/screens/compare.png)      | ![](public/screens/dashboard.png)  |
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), Tailwind CSS, TypeScript
+- **Auth**: NextAuth (no Prisma)
+- **Backend API**: AWS Textract + OpenRouter (DeepSeek model)
+- **State Management**: React Context + LocalStorage
+- **Deployment**: Vercel (Recommended)
+
+---
+
+## 🧪 Local Development
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/your-username/skillsync-ai.git
+cd skillsync-ai
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Setup environment variables
+
+Create a `.env.local` file with:
+
+```env
+NEXTAUTH_SECRET=your_secret
+NEXTAUTH_URL=http://localhost:3000
+
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+AWS_REGION=your_region
+
+OPENROUTER_API_KEY=your_openrouter_key
+```
+
+### 4. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App will be running at [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ✅ Todos
 
-## Learn More
+- [x] Resume + JD parsing flow
+- [x] Compare page with match/miss skills
+- [x] Dashboard with CRUD per status
+- [ ] Export comparison as PDF
+- [ ] Improve matching logic using embeddings (future)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📄 License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+MIT License. Free to use and modify.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🙌 Acknowledgements
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [AWS Textract](https://aws.amazon.com/textract/)
+- [OpenRouter](https://openrouter.ai/)
+- [Next.js](https://nextjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
