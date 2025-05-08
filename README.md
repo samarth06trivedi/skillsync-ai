@@ -14,7 +14,6 @@ SkillSync AI is a smart resume-job matcher web app that compares your resume aga
 - ✍️ **Job Description Parsing** via AI (OpenRouter/DeepSeek)
 - 🤖 **Smart Matching** of skills between resume and job description
 - 📊 **Match Percentage** breakdown with matched/missing skill lists
-- 📁 **Dashboard View**: Track job applications (In Progress / Offers / Rejections)
 - 💾 **LocalStorage** support for fast comparison persistence
 
 ---
